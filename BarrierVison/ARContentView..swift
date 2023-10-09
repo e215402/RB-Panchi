@@ -7,7 +7,7 @@
 
 import SwiftUI
 import RealityKit
-import ARKit
+//import ARKit
 import Combine
 
 
@@ -44,11 +44,11 @@ struct ARViewContainer: UIViewRepresentable {
         let model = ModelEntity(mesh: mesh, materials: [material])
         
         //壁認識コード　ここをコメントアウトするとキューブが見える
-        arView.automaticallyConfigureSession = false
-        let configuration = ARWorldTrackingConfiguration()
-        configuration.sceneReconstruction = .meshWithClassification
-        arView.debugOptions.insert(.showSceneUnderstanding)
-        arView.session.run(configuration)
+//        arView.automaticallyConfigureSession = false
+//        let configuration = ARWorldTrackingConfiguration()
+//        configuration.sceneReconstruction = .meshWithClassification
+//        arView.debugOptions.insert(.showSceneUnderstanding)
+//        arView.session.run(configuration)
         //壁認識コード
 
         model.name = "WheelChair"
@@ -65,15 +65,22 @@ struct ARViewContainer: UIViewRepresentable {
                 let cameraForward = arView.cameraTransform.matrix.forwardVector
                 
                 // カメラの位置と少し前方にオブジェクトを配置
-                let objectDistance: Float = 0.01  // 1メートル前方にオブジェクトを配置
+                let objectDistance: Float = 1.5  // 1メートル前方にオブジェクトを配置　マイナス
                 let objectPosition = cameraPosition + cameraForward * objectDistance
                 
-                // yの座標は変更しない
-                model.position = SIMD3<Float>(objectPosition.x, model.position.y, objectPosition.z)
+//                // yの座標は変更しない
+//                model.position = SIMD3<Float>(objectPosition.x, model.position.y, objectPosition.z)
+//                
+//                // オブジェクトのオリエンテーションをカメラのy軸回転にのみ合わせる
+//                let yAxisRotation = atan2(cameraForward.x, cameraForward.z)
+//                model.orientation = simd_quatf(angle: yAxisRotation, axis: SIMD3<Float>(0, 1, 0))
                 
-                // オブジェクトのオリエンテーションをカメラのy軸回転にのみ合わせる
-                let yAxisRotation = atan2(cameraForward.x, cameraForward.z)
-                model.orientation = simd_quatf(angle: yAxisRotation, axis: SIMD3<Float>(0, 1, 0))
+                // オブジェクトの位置を更新
+                 model.position = objectPosition
+                 
+                 // オブジェクトのオリエンテーションをカメラのy軸回転にのみ合わせる
+//                 let yAxisRotation = atan2(cameraForward.x, cameraForward.z)
+//                 model.orientation = simd_quatf(angle: yAxisRotation, axis: SIMD3<Float>(0, 1, 0))
             }
         }
 

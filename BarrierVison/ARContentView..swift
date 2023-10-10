@@ -7,7 +7,7 @@
 
 import SwiftUI
 import RealityKit
-//import ARKit
+import ARKit
 import Combine
 
 
@@ -34,7 +34,9 @@ struct ARViewContainer: UIViewRepresentable {
     
     class CustomARView: ARView {
         var updateToken: Cancellable?
+
     }
+    
     
     func makeUIView(context: Context) -> ARView {
         let arView = CustomARView(frame: .zero)
@@ -42,7 +44,7 @@ struct ARViewContainer: UIViewRepresentable {
         let mesh = MeshResource.generateBox(size: boxSize)
         let material = SimpleMaterial(color: .green, isMetallic: false)
         let model = ModelEntity(mesh: mesh, materials: [material])
-        
+
         //壁認識コード　ここをコメントアウトするとキューブが見える
 //        arView.automaticallyConfigureSession = false
 //        let configuration = ARWorldTrackingConfiguration()
@@ -57,6 +59,7 @@ struct ARViewContainer: UIViewRepresentable {
         anchor.children.append(model)
         arView.scene.anchors.append(anchor)
 
+
         arView.updateToken = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak arView] event in
             guard let arView = arView else { return }
             
@@ -65,27 +68,24 @@ struct ARViewContainer: UIViewRepresentable {
                 let cameraForward = arView.cameraTransform.matrix.forwardVector
                 
                 // カメラの位置と少し前方にオブジェクトを配置
-                let objectDistance: Float = 1.5  // 1メートル前方にオブジェクトを配置　マイナス
-                let objectPosition = cameraPosition + cameraForward * objectDistance
-                
-//                // yの座標は変更しない
-//                model.position = SIMD3<Float>(objectPosition.x, model.position.y, objectPosition.z)
-//                
-//                // オブジェクトのオリエンテーションをカメラのy軸回転にのみ合わせる
-//                let yAxisRotation = atan2(cameraForward.x, cameraForward.z)
-//                model.orientation = simd_quatf(angle: yAxisRotation, axis: SIMD3<Float>(0, 1, 0))
-                
+                let objectDistance: Float = 2.0  // 1メートル前方にオブジェクトを配置　マイナス
+                //let objectPosition = cameraPosition + cameraForward * objectDistance
+                let objectPosition = SIMD3<Float>(cameraPosition.x + cameraForward.x * objectDistance, -1.6, cameraPosition.z + cameraForward.z * objectDistance)
+
                 // オブジェクトの位置を更新
-                 model.position = objectPosition
-                 
-                 // オブジェクトのオリエンテーションをカメラのy軸回転にのみ合わせる
-//                 let yAxisRotation = atan2(cameraForward.x, cameraForward.z)
-//                 model.orientation = simd_quatf(angle: yAxisRotation, axis: SIMD3<Float>(0, 1, 0))
+//                 model.position = objectPosition
+                model.position = SIMD3<Float>(objectPosition.x, 0, objectPosition.z)
+                // オブジェクトがカメラに向けるべき方向を計算
+                model.look(at: cameraPosition, from: objectPosition, relativeTo: nil)
+
             }
         }
-
         return arView
     }
-    
     func updateUIView(_ uiView: ARView, context: Context) {}
 }
+
+
+
+
+

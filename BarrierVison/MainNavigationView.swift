@@ -26,7 +26,17 @@ struct MainNavigationView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
-                
+                /*
+                NavigationLink(destination: MappingView()){
+                    Text("MAPPING")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                */
                 NavigationLink(destination: ExplainView()) {
                     Text("ABOUT")
                         .font(.title2)
@@ -36,6 +46,8 @@ struct MainNavigationView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
+                
+                
             }
             .padding()
         }

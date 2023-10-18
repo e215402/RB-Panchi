@@ -3,18 +3,20 @@ import RealityKit
 import ARKit
 import Combine
 
-//save distance info
+//コメントアウトしたコードは消さないでね．汚いけど．．
+
+// ARの距離情報を保持するクラス
 class ARdistanceState: ObservableObject {
     @Published var distance: Float = 0.0
     @Published var isGo: String = "YES"
 }
 
+// ARコンテンツを表示するためのView
 struct ARContentView: View {
-
     @ObservedObject var distanceStateR = ARdistanceState()
     @ObservedObject var distanceStateL = ARdistanceState()
     @ObservedObject var distanceStateM = ARdistanceState()
-    
+    // ARViewの更新を管理するクラス
     class Coordinator {
         var updateToken: Cancellable?
     }
@@ -24,6 +26,8 @@ struct ARContentView: View {
         //HStack == Horizontal stack,
         //VStack == Vertical stack,
         //ZStack == Z-axis stack
+        
+        //アプリ実行時の各計測距離を表示するブロック
         VStack{
             ARViewContainer(distanceStateR: distanceStateR,
                             distanceStateL: distanceStateL,
@@ -63,10 +67,17 @@ extension float4x4 {
 }
 */
 
+/*
+ raycastを使用してます
+ LiDARセンサーから左右15°ずつの角度で飛ばして反射で帰ってきた距離を見る
+ 仮に左側に壁があった場合，左の距離は距離R >距離Lであるので左側に障害物があることがわかる
+ というコードです
+ 
+ */
 struct ARViewContainer: UIViewRepresentable {
-    @ObservedObject var distanceStateR: ARdistanceState
-    @ObservedObject var distanceStateL: ARdistanceState
-    @ObservedObject var distanceStateM: ARdistanceState
+    @ObservedObject var distanceStateR: ARdistanceState //右側のレーザーからの反射距離
+    @ObservedObject var distanceStateL: ARdistanceState //同左側
+    @ObservedObject var distanceStateM: ARdistanceState //中点　使ってない
     
     class CustomARView: ARView {
         var updateToken: Cancellable?
@@ -133,7 +144,7 @@ struct ARViewContainer: UIViewRepresentable {
             model.look(at: cameraPosition, from: objectPosition, relativeTo: nil)
             */
                 
-            // Raycast setting
+            // Raycastの設定
             let raycastOrigin = SIMD3<Float>(cameraPosition.x, cameraPosition.y, cameraPosition.z)
             //print(raycastOrigin)
             //Right raycast
@@ -166,6 +177,10 @@ struct ARViewContainer: UIViewRepresentable {
                     //create anchor at the raycasting place
                     //let anchorR = AnchorEntity(world: resultR.worldTransform)
                     //let anchorL = AnchorEntity(world: resultL.worldTransform)
+                    /*
+                     今回のコードではオブジェクトを動かすのではなくてアンカーが移動した箇所に
+                     新しくオブジェクトを追加した．
+                     */
                     let anchorM = AnchorEntity(world: resultM.worldTransform)
                     
                     let boxSize = SIMD3<Float>(0.02, 0.02, 0.02)
@@ -215,6 +230,7 @@ struct ARViewContainer: UIViewRepresentable {
     }
     func updateUIView(_ uiView: ARView, context: Context) {}
 }
+
 
 
 
